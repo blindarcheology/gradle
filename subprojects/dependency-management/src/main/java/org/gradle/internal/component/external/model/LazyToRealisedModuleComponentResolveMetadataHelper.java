@@ -78,23 +78,26 @@ public class LazyToRealisedModuleComponentResolveMetadataHelper {
             ImmutableList<? extends ComponentVariant.File> files;
 
             ComponentVariant baseVariant = variantsByName.get(baseName);
+            boolean isExternalVariant;
             if (baseVariant == null) {
                 attributes = componentMetadata.getAttributes();
                 capabilities = ImmutableCapabilities.EMPTY;
                 dependencies = ImmutableList.of();
                 dependencyConstraints = ImmutableList.of();
                 files = ImmutableList.of();
+                isExternalVariant = false;
             } else {
                 attributes = (ImmutableAttributes) baseVariant.getAttributes();
                 capabilities = (ImmutableCapabilities) baseVariant.getCapabilities();
                 dependencies = baseVariant.getDependencies();
                 dependencyConstraints = baseVariant.getDependencyConstraints();
                 files = baseVariant.getFiles();
+                isExternalVariant = baseVariant.isExternalVariant();
             }
 
             if (baseName == null || baseVariant != null) {
                 AbstractRealisedModuleComponentResolveMetadata.ImmutableRealisedVariantImpl variant = applyRules(new AbstractMutableModuleComponentResolveMetadata.ImmutableVariantImpl(
-                        componentMetadata.getId(), additionalVariant.getName(), attributes, dependencies, dependencyConstraints, files, capabilities),
+                        componentMetadata.getId(), additionalVariant.getName(), attributes, dependencies, dependencyConstraints, files, capabilities, isExternalVariant),
                     variantMetadataRules, componentMetadata.getId());
                 builder.add(variant);
             } else if (!additionalVariant.isLenient()) {
@@ -112,7 +115,7 @@ public class LazyToRealisedModuleComponentResolveMetadataHelper {
         List<GradleDependencyMetadata> dependencies = variantMetadataRules.applyDependencyMetadataRules(variant, convertDependencies(variant.getDependencies(), variant.getDependencyConstraints(), force));
         return new AbstractRealisedModuleComponentResolveMetadata.ImmutableRealisedVariantImpl(id, variant.getName(), attributes,
             variant.getDependencies(), variant.getDependencyConstraints(), files,
-            ImmutableCapabilities.of(capabilitiesMetadata.getCapabilities()), dependencies);
+            ImmutableCapabilities.of(capabilitiesMetadata.getCapabilities()), dependencies, variant.isExternalVariant());
     }
 
     private static List<GradleDependencyMetadata> convertDependencies(List<? extends ComponentVariant.Dependency> dependencies, List<? extends ComponentVariant.DependencyConstraint> dependencyConstraints, boolean force) {

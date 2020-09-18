@@ -1,3 +1,0 @@
- - File system watching is ready for production use
- - 'gradle init' generates multi-project builds
- - JDK15 support
